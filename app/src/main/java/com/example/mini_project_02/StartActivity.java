@@ -2,9 +2,13 @@ package com.example.mini_project_02;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,6 +24,8 @@ import org.json.JSONObject;
 public class StartActivity extends AppCompatActivity {
     TextView tvStartActQuote, tvStartActAuthor;
     Button btnStartActPass;
+    ToggleButton tbStartActPinUnpin;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,12 +35,53 @@ public class StartActivity extends AppCompatActivity {
         tvStartActQuote = findViewById(R.id.tvStartActQuote);
         tvStartActAuthor = findViewById(R.id.tvStartActAuthor);
         btnStartActPass = findViewById(R.id.btnStartActPass);
+        tbStartActPinUnpin = findViewById(R.id.tbStartActPinUnpin);
 
-        //region Test Volley
+        sharedPreferences = getSharedPreferences("pinned-quote", MODE_PRIVATE);
+
+        String quote = sharedPreferences.getString("quote", null);
+
+        if (quote == null) {
+            getRandomQuote();
+        } else {
+            String author = sharedPreferences.getString("author", null);
+
+            tvStartActQuote.setText(quote);
+            tvStartActAuthor.setText(author);
+
+            tbStartActPinUnpin.setChecked(true);
+        }
+
+        tbStartActPinUnpin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                String quote = null;
+                String author = null;
+
+                if (isChecked) {
+                    quote = tvStartActQuote.getText().toString();
+                    author = tvStartActAuthor.getText().toString();
+                } else {
+                    getRandomQuote();
+                }
+
+                editor.putString("quote", quote);
+                editor.putString("author", author);
+
+                editor.commit();
+            }
+        });
+
+        btnStartActPass.setOnClickListener(v -> {
+            finish();
+        });
+    }
+
+    private void getRandomQuote() {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://dummyjson.com/quotes/random";
 
-        // Request a string response from the provided URL.
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 url,
                 new Response.Listener<JSONObject>() {
@@ -56,11 +103,5 @@ public class StartActivity extends AppCompatActivity {
                 });
 
         queue.add(jsonObjectRequest);
-
-        //endregion
-
-        btnStartActPass.setOnClickListener(v -> {
-            finish();
-        });
     }
 }
