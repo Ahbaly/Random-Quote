@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -26,6 +28,8 @@ public class StartActivity extends AppCompatActivity {
     Button btnStartActPass;
     ToggleButton tbStartActPinUnpin;
     SharedPreferences sharedPreferences;
+    ImageView ivStartActIsFavorite;
+    boolean isFavorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,9 @@ public class StartActivity extends AppCompatActivity {
         tvStartActAuthor = findViewById(R.id.tvStartActAuthor);
         btnStartActPass = findViewById(R.id.btnStartActPass);
         tbStartActPinUnpin = findViewById(R.id.tbStartActPinUnpin);
+        ivStartActIsFavorite = findViewById(R.id.ivStartActIsFavorite);
+
+        //region Pin | Unpin Quote
 
         sharedPreferences = getSharedPreferences("pinned-quote", MODE_PRIVATE);
 
@@ -72,6 +79,21 @@ public class StartActivity extends AppCompatActivity {
                 editor.commit();
             }
         });
+
+        //endregion
+
+        //region Like | Dislike Quote
+
+        ivStartActIsFavorite.setOnClickListener(v -> {
+            if (isFavorite)
+                ivStartActIsFavorite.setImageResource(R.drawable.dislike);
+            else
+                ivStartActIsFavorite.setImageResource(R.drawable.like);
+
+            isFavorite = !isFavorite;
+        });
+
+        //endregion
 
         btnStartActPass.setOnClickListener(v -> {
             finish();
