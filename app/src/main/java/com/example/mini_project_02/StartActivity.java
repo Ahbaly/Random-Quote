@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.mini_project_02.db.FavoriteQuotesDbOpenHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -92,6 +93,17 @@ public class StartActivity extends AppCompatActivity {
 
             isFavorite = !isFavorite;
         });
+
+        //region ToDelete : Just for test
+
+        FavoriteQuotesDbOpenHelper db = new FavoriteQuotesDbOpenHelper(this);
+//        db.add(1, "q1", "a1");
+        db.add(20, "q2", "a2");
+        db.add(30, "q3", "a3");
+
+        db.getAll();
+
+        //endregion
 
         //endregion
 
