@@ -49,6 +49,16 @@ public class FavoriteQuotesDbOpenHelper extends SQLiteOpenHelper {
         db.insert(FavoriteQuotesContract.Infos.TABLE_NAME, null, values);
     }
 
+    public void delete(int id) {
+        SQLiteDatabase db = FavoriteQuotesDbOpenHelper.this.getWritableDatabase();
+
+        String selection = FavoriteQuotesContract.Infos.COLUMN_NAME_ID + " = ?";
+
+        String[] selectionArgs = {Integer.toString(id)};
+
+        db.delete(FavoriteQuotesContract.Infos.TABLE_NAME, selection, selectionArgs);
+    }
+
     public void getAll() {
         SQLiteDatabase db = FavoriteQuotesDbOpenHelper.this.getReadableDatabase();
 
@@ -69,7 +79,7 @@ public class FavoriteQuotesDbOpenHelper extends SQLiteOpenHelper {
                 null
         );
 
-        while(cursor.moveToNext()) {
+        while (cursor.moveToNext()) {
             int id = cursor.getInt(cursor.getColumnIndexOrThrow(FavoriteQuotesContract.Infos.COLUMN_NAME_ID));
             String quote = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteQuotesContract.Infos.COLUMN_NAME_ID));
             String author = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteQuotesContract.Infos.COLUMN_NAME_ID));

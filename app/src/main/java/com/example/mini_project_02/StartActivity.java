@@ -98,8 +98,10 @@ public class StartActivity extends AppCompatActivity {
 
         FavoriteQuotesDbOpenHelper db = new FavoriteQuotesDbOpenHelper(this);
 //        db.add(1, "q1", "a1");
-        db.add(20, "q2", "a2");
-        db.add(30, "q3", "a3");
+//        db.add(2, "q2", "a2");
+//        db.add(3, "q3", "a3");
+
+        db.delete(20);
 
         db.getAll();
 
