@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -20,9 +21,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mini_project_02.db.FavoriteQuotesDbOpenHelper;
+import com.example.mini_project_02.models.Quote;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class StartActivity extends AppCompatActivity {
     TextView tvStartActQuote, tvStartActAuthor;
@@ -45,16 +49,16 @@ public class StartActivity extends AppCompatActivity {
 
         //region Pin | Unpin Quote
 
-        sharedPreferences = getSharedPreferences("pinned-quote", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("pinned-pinnedQuote", MODE_PRIVATE);
 
-        String quote = sharedPreferences.getString("quote", null);
+        String pinnedQuote = sharedPreferences.getString("pinnedQuote", null);
 
-        if (quote == null) {
+        if (pinnedQuote == null) {
             getRandomQuote();
         } else {
             String author = sharedPreferences.getString("author", null);
 
-            tvStartActQuote.setText(quote);
+            tvStartActQuote.setText(pinnedQuote);
             tvStartActAuthor.setText(author);
 
             tbStartActPinUnpin.setChecked(true);
@@ -74,7 +78,7 @@ public class StartActivity extends AppCompatActivity {
                     getRandomQuote();
                 }
 
-                editor.putString("quote", quote);
+                editor.putString("pinnedQuote", quote);
                 editor.putString("author", author);
 
                 editor.commit();
@@ -97,13 +101,18 @@ public class StartActivity extends AppCompatActivity {
         //region ToDelete : Just for test
 
         FavoriteQuotesDbOpenHelper db = new FavoriteQuotesDbOpenHelper(this);
-//        db.add(1, "q1", "a1");
-//        db.add(2, "q2", "a2");
-//        db.add(3, "q3", "a3");
+//        db.add(new Quote(1, "q1", "a1"));
+//        db.add(new Quote(2, "q2", "a2"));
+//        db.add(new Quote(3, "q3", "a3"));
 
-        db.delete(20);
+        db.delete(3);
+//        db.delete(2);
 
-        db.getAll();
+        ArrayList<Quote> quotes = db.getAll();
+
+        for (Quote quote : quotes) {
+            Log.e("SQLite", quote.toString());
+        }
 
         //endregion
 
