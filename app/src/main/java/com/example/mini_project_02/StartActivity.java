@@ -35,6 +35,8 @@ public class StartActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     ImageView ivStartActIsFavorite;
     boolean isFavorite = false;
+    FavoriteQuotesDbOpenHelper db;
+    TextView tvStartActId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,7 @@ public class StartActivity extends AppCompatActivity {
         btnStartActPass = findViewById(R.id.btnStartActPass);
         tbStartActPinUnpin = findViewById(R.id.tbStartActPinUnpin);
         ivStartActIsFavorite = findViewById(R.id.ivStartActIsFavorite);
+        tvStartActId = findViewById(R.id.tvStartActId);
 
         //region Pin | Unpin Quote
 
@@ -89,32 +92,35 @@ public class StartActivity extends AppCompatActivity {
 
         //region Like | Dislike Quote
 
+        db = new FavoriteQuotesDbOpenHelper(this);
+
         ivStartActIsFavorite.setOnClickListener(v -> {
-            if (isFavorite)
+            int id = Integer.parseInt(tvStartActId.getText().toString().substring(1));
+
+            if (isFavorite) {
                 ivStartActIsFavorite.setImageResource(R.drawable.dislike);
-            else
+
+                db.delete(id);
+            } else {
                 ivStartActIsFavorite.setImageResource(R.drawable.like);
 
+                String quote = tvStartActQuote.getText().toString();
+                String author = tvStartActAuthor.getText().toString();
+
+                db.add(new Quote(id, quote, author));
+            }
+
             isFavorite = !isFavorite;
+
+            //region ToDelete
+
+            ArrayList<Quote> quotes = db.getAll();
+            for (Quote quote : quotes) {
+                Log.e("SQLite", quote.toString());
+            }
+
+            //endregion
         });
-
-        //region ToDelete : Just for test
-
-        FavoriteQuotesDbOpenHelper db = new FavoriteQuotesDbOpenHelper(this);
-//        db.add(new Quote(1, "q1", "a1"));
-//        db.add(new Quote(2, "q2", "a2"));
-//        db.add(new Quote(3, "q3", "a3"));
-
-        db.delete(3);
-//        db.delete(2);
-
-        ArrayList<Quote> quotes = db.getAll();
-
-        for (Quote quote : quotes) {
-            Log.e("SQLite", quote.toString());
-        }
-
-        //endregion
 
         //endregion
 
@@ -133,6 +139,7 @@ public class StartActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            tvStartActId.setText(String.format("#%d", response.getInt("id")));
                             tvStartActQuote.setText(response.getString("quote"));
                             tvStartActAuthor.setText(response.getString("author"));
                         } catch (JSONException e) {

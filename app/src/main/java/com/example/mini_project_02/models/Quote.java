@@ -1,5 +1,7 @@
 package com.example.mini_project_02.models;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 public class Quote {
