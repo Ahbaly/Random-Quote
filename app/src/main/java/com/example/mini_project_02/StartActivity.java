@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class StartActivity extends AppCompatActivity {
     TextView tvStartActQuote, tvStartActAuthor;
@@ -131,7 +132,14 @@ public class StartActivity extends AppCompatActivity {
 
     private void getRandomQuote() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://dummyjson.com/quotes/random";
+//        String url = "https://dummyjson.com/quotes/random";
+
+        //region ToDo: Delete
+
+        int randomNumber = ThreadLocalRandom.current().nextInt(1, 3 + 1);
+        String url = String.format("https://dummyjson.com/quotes/%d", randomNumber);
+
+        //endregion
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 url,
@@ -139,9 +147,18 @@ public class StartActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            tvStartActId.setText(String.format("#%d", response.getInt("id")));
-                            tvStartActQuote.setText(response.getString("quote"));
-                            tvStartActAuthor.setText(response.getString("author"));
+                            int id = response.getInt("id");
+                            String quote = response.getString("quote");
+                            String author = response.getString("author");
+
+                            if (db.isFavorite(id))
+                                ivStartActIsFavorite.setImageResource(R.drawable.like);
+                            else
+                                ivStartActIsFavorite.setImageResource(R.drawable.dislike);
+
+                            tvStartActId.setText(String.format("#%d", id));
+                            tvStartActQuote.setText(quote);
+                            tvStartActAuthor.setText(author);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
