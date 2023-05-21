@@ -2,23 +2,20 @@ package com.example.mini_project_02;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mini_project_02.db.FavoriteQuotesDbOpenHelper;
 import com.example.mini_project_02.models.Quote;
@@ -27,13 +24,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class StartActivity extends AppCompatActivity {
     private final static int INVALIDE_ID = -1;
 
     TextView tvStartActQuote, tvStartActAuthor;
-    Button btnStartActPass;
+    Button btnStartActShowAllFavQuotes;
     ToggleButton tbStartActPinUnpin;
     SharedPreferences sharedPreferences;
     ImageView ivStartActIsFavorite;
@@ -47,7 +43,7 @@ public class StartActivity extends AppCompatActivity {
 
         tvStartActQuote = findViewById(R.id.tvStartActQuote);
         tvStartActAuthor = findViewById(R.id.tvStartActAuthor);
-        btnStartActPass = findViewById(R.id.btnStartActPass);
+        btnStartActShowAllFavQuotes = findViewById(R.id.btnStartActShowAllFavQuotes);
         tbStartActPinUnpin = findViewById(R.id.tbStartActPinUnpin);
         ivStartActIsFavorite = findViewById(R.id.ivStartActIsFavorite);
         tvStartActId = findViewById(R.id.tvStartActId);
@@ -95,12 +91,6 @@ public class StartActivity extends AppCompatActivity {
                         ivStartActIsFavorite.setImageResource(R.drawable.like);
 
                         db.add(new Quote(pinnedQuoteId, quote, author));
-
-                        //region ToDo: Delete
-
-                        logFavoriteQuotes();
-
-                        //endregion
                     }
                 } else {
 //                    getRandomQuote();
@@ -136,42 +126,19 @@ public class StartActivity extends AppCompatActivity {
 
                 db.add(new Quote(id, quote, author));
             }
-
-            //region ToDo: Delete
-
-            logFavoriteQuotes();
-
-            //endregion
         });
 
         //endregion
 
-        btnStartActPass.setOnClickListener(v -> {
-            finish();
+        btnStartActShowAllFavQuotes.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AllFavoriteQuotesActivity.class);
+            startActivity(intent);
         });
     }
-
-    //region ToDo: Delete
-
-    private void logFavoriteQuotes() {
-        ArrayList<Quote> quotes = db.getAll();
-        for (Quote quote : quotes) {
-            Log.e("SQLite", quote.toString());
-        }
-    }
-
-    //endregion
 
     private void getRandomQuote() {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://dummyjson.com/quotes/random";
-
-        //region ToDo: Delete
-
-//        int randomNumber = ThreadLocalRandom.current().nextInt(1, 5 + 1);
-//        String url = String.format("https://dummyjson.com/quotes/%d", randomNumber);
-
-        //endregion
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 url,
