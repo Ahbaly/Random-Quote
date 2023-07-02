@@ -17,6 +17,8 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Random;
+
 public class StartActivity extends AppCompatActivity {
     TextView tvStartActQuote, tvStartActAuthor;
     Button btnStartActPass;
@@ -32,7 +34,9 @@ public class StartActivity extends AppCompatActivity {
 
         //region Test Volley
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://dummyjson.com/quotes/random";
+
+        int random_int = (int)Math.floor(Math.random() * (80 - 25 + 1) + 25);
+        String url = "https://dummyjson.com/quotes/" + random_int;
 
         // Request a string response from the provided URL.
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
