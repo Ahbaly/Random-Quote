@@ -1,11 +1,21 @@
 package com.example.mini_project_02;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Layout;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -21,12 +31,17 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class StartActivity extends AppCompatActivity {
     TextView tvStartActQuote, tvStartActAuthor;
     Button btnStartActPass;
     ToggleButton tbStartActPinUnpin;
     SharedPreferences sharedPreferences;
+    Spinner spinnerBgColor;
+    ConstraintLayout cl;
 
+    @SuppressLint({"MissingInflatedId", "ResourceType"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +51,47 @@ public class StartActivity extends AppCompatActivity {
         tvStartActAuthor = findViewById(R.id.tvStartActAuthor);
         btnStartActPass = findViewById(R.id.btnStartActPass);
         tbStartActPinUnpin = findViewById(R.id.tbStartActPinUnpin);
+        spinnerBgColor = findViewById(R.id.spinnerBgColor);
+        cl = findViewById(R.id.activity_start);
 
         sharedPreferences = getSharedPreferences("pinned-quote", MODE_PRIVATE);
+
+        ArrayList<String> colorNames = new ArrayList<>(), colorCode = new ArrayList<>();
+        colorNames.add("Default");
+        colorNames.add("LightSalmon");
+        colorNames.add("Plum");
+        colorNames.add("PaleGreen");
+        colorNames.add("CornflowerBlue");
+
+        colorCode.add("#FFFFFFFF");
+        colorCode.add("#FFA07A");
+        colorCode.add("#DDA0DD");
+        colorCode.add("#98FB98");
+        colorCode.add("#6495ED");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, colorNames);
+        spinnerBgColor.setAdapter(adapter);
+
+        int colorIndex = sharedPreferences.getInt("colorIndex", 0);
+        cl.setBackgroundColor(Color.parseColor(colorCode.get(colorIndex)));
+        spinnerBgColor.setSelection(colorIndex, true);
+
+        spinnerBgColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                cl.setBackgroundColor(Color.parseColor(colorCode.get(position)));
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("colorIndex", position);
+                editor.commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
 
         String quote = sharedPreferences.getString("quote", null);
 
