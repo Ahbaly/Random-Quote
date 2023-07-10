@@ -2,6 +2,7 @@ package com.example.mini_project_02;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +40,7 @@ public class StartActivity extends AppCompatActivity {
     FavoriteQuotesDbOpenHelper db;
     TextView tvStartActId;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +53,8 @@ public class StartActivity extends AppCompatActivity {
         ivStartActIsFavorite = findViewById(R.id.ivStartActIsFavorite);
         tvStartActId = findViewById(R.id.tvStartActId);
 
+        db = new FavoriteQuotesDbOpenHelper(this);
+
         //region Pin | Unpin Quote
 
         sharedPreferences = getSharedPreferences("pinned-pinnedQuote", MODE_PRIVATE);
@@ -61,9 +65,13 @@ public class StartActivity extends AppCompatActivity {
             getRandomQuote();
         } else {
             String author = sharedPreferences.getString("author", null);
+            String id = sharedPreferences.getString("id", null);
 
             tvStartActQuote.setText(pinnedQuote);
             tvStartActAuthor.setText(author);
+            tvStartActId.setText("#"+id);
+
+            ivStartActIsFavorite.setImageResource(R.drawable.like);
 
             tbStartActPinUnpin.setChecked(true);
         }
@@ -74,16 +82,26 @@ public class StartActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 String quote = null;
                 String author = null;
+                String id  = null;
 
                 if (isChecked) {
                     quote = tvStartActQuote.getText().toString();
                     author = tvStartActAuthor.getText().toString();
+                    id = tvStartActId.getText().toString().substring(1);
+
+                    if(!db.isFavorite(Integer.parseInt(id))) {
+                        db.add(new Quote(Integer.parseInt(id), quote, author));
+                        ivStartActIsFavorite.performClick();
+                    }
+
                 } else {
                     getRandomQuote();
+                    System.out.println("unpin");
                 }
 
                 editor.putString("pinnedQuote", quote);
                 editor.putString("author", author);
+                editor.putString("id", id);
 
                 editor.commit();
             }
@@ -99,19 +117,25 @@ public class StartActivity extends AppCompatActivity {
             int id = Integer.parseInt(tvStartActId.getText().toString().substring(1));
 
             if (isFavorite) {
+                isFavorite=false;
                 ivStartActIsFavorite.setImageResource(R.drawable.dislike);
 
+                if (tbStartActPinUnpin.isChecked())
+                    tbStartActPinUnpin.setChecked(false);
+
                 db.delete(id);
+
             } else {
+                isFavorite=true;
+
                 ivStartActIsFavorite.setImageResource(R.drawable.like);
 
                 String quote = tvStartActQuote.getText().toString();
                 String author = tvStartActAuthor.getText().toString();
 
-                db.add(new Quote(id, quote, author));
+                if(!db.isFavorite(id))
+                    db.add(new Quote(id, quote, author));
             }
-
-            isFavorite = !isFavorite;
 
             //region ToDelete
 
@@ -131,12 +155,14 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void getRandomQuote() {
+        System.out.println("unpin");
+
         RequestQueue queue = Volley.newRequestQueue(this);
 //        String url = "https://dummyjson.com/quotes/random";
 
         //region ToDo: Delete
 
-        int randomNumber = ThreadLocalRandom.current().nextInt(1, 3 + 1);
+        int randomNumber = ThreadLocalRandom.current().nextInt(1, 8 + 1);
         String url = String.format("https://dummyjson.com/quotes/%d", randomNumber);
 
         //endregion
@@ -151,10 +177,15 @@ public class StartActivity extends AppCompatActivity {
                             String quote = response.getString("quote");
                             String author = response.getString("author");
 
-                            if (db.isFavorite(id))
+                            if (db.isFavorite(id)) {
                                 ivStartActIsFavorite.setImageResource(R.drawable.like);
-                            else
+                                isFavorite = true;
+                            }
+
+                            else {
                                 ivStartActIsFavorite.setImageResource(R.drawable.dislike);
+                                isFavorite = false;
+                            }
 
                             tvStartActId.setText(String.format("#%d", id));
                             tvStartActQuote.setText(quote);
