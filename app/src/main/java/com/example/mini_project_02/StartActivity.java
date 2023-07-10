@@ -37,6 +37,7 @@ public class StartActivity extends AppCompatActivity {
     boolean isFavorite = false;
     FavoriteQuotesDbOpenHelper db;
     TextView tvStartActId;
+    ArrayList<Quote> favQuotes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +95,8 @@ public class StartActivity extends AppCompatActivity {
 
         db = new FavoriteQuotesDbOpenHelper(this);
 
+        favQuotes = db.getAll();
+
         ivStartActIsFavorite.setOnClickListener(v -> {
             int id = Integer.parseInt(tvStartActId.getText().toString().substring(1));
 
@@ -131,7 +134,8 @@ public class StartActivity extends AppCompatActivity {
 
     private void getRandomQuote() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://dummyjson.com/quotes/random";
+        int random_int = (int)Math.floor(Math.random() * (5 - 1 + 1) + 1);
+        String url = "https://dummyjson.com/quotes/" + random_int;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 url,
@@ -142,6 +146,12 @@ public class StartActivity extends AppCompatActivity {
                             tvStartActId.setText(String.format("#%d", response.getInt("id")));
                             tvStartActQuote.setText(response.getString("quote"));
                             tvStartActAuthor.setText(response.getString("author"));
+
+                            for (Quote q : favQuotes) {
+                                if (q.getId() == response.getInt("id")) {
+                                    ivStartActIsFavorite.setImageResource(R.drawable.like);
+                                }
+                            }
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
