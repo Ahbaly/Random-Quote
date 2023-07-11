@@ -1,14 +1,19 @@
 package com.example.mini_project_02;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -21,7 +26,10 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mini_project_02.db.FavoriteQuotesDbOpenHelper;
+import com.example.mini_project_02.db.SettingsDb;
+import com.example.mini_project_02.models.Color;
 import com.example.mini_project_02.models.Quote;
+import com.example.mini_project_02.models.Setting;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,8 +46,12 @@ public class StartActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     ImageView ivStartActIsFavorite;
     FavoriteQuotesDbOpenHelper db;
+    SettingsDb db2;
     TextView tvStartActId;
+    Spinner spinner;
+    ConstraintLayout cl;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,12 +63,47 @@ public class StartActivity extends AppCompatActivity {
         tbStartActPinUnpin = findViewById(R.id.tbStartActPinUnpin);
         ivStartActIsFavorite = findViewById(R.id.ivStartActIsFavorite);
         tvStartActId = findViewById(R.id.tvStartActId);
+        spinner = findViewById(R.id.spinner);
+        cl = findViewById(R.id.cl);
 
         //region Persistence Objects
+        db2 = new SettingsDb(this);
 
         db = new FavoriteQuotesDbOpenHelper(this);
+
         sharedPreferences = getSharedPreferences("pinned-quote", MODE_PRIVATE);
 
+        //endregion
+
+        //region Fill spinner from DB
+        ArrayList<Color> colors = db2.getAllColors();
+        ArrayList<Setting> settings = db2.getAllSettings();
+
+        ArrayList<String> colorsNames = new ArrayList<>();
+
+        for (Color c : colors) {
+            colorsNames.add(c.getName());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,colorsNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        int spinnerPosition = adapter.getPosition(settings.get(0).getValue());
+        spinner.setSelection(spinnerPosition);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                for (Color c: colors) {
+                    if (c.getName().equals(selectedItem)){
+                        db2.UpdateSetting(new Setting("bg",c.getName()));
+                        cl.setBackgroundColor(android.graphics.Color.parseColor(c.getCode()));
+                    }
+                }
+            }
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
         //endregion
 
         //region Pin | Unpin Quote
