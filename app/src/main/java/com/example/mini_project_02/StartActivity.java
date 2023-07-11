@@ -35,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StartActivity extends AppCompatActivity {
@@ -51,7 +52,7 @@ public class StartActivity extends AppCompatActivity {
     Spinner spinner;
     ConstraintLayout cl;
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "DefaultLocale"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,24 +80,31 @@ public class StartActivity extends AppCompatActivity {
         ArrayList<Color> colors = db2.getAllColors();
         ArrayList<Setting> settings = db2.getAllSettings();
 
-        ArrayList<String> colorsNames = new ArrayList<>();
+//        ArrayList<String> colorsNames = new ArrayList<>();
+//
+//        for (Color c : colors) {
+//            colorsNames.add(c.getName());
+//        }
 
-        for (Color c : colors) {
-            colorsNames.add(c.getName());
-        }
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,colorsNames);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinner.setAdapter(adapter);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,colorsNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<Color> adapter = new SpinnerAdapter(this,colors);
         spinner.setAdapter(adapter);
 
-        int spinnerPosition = adapter.getPosition(settings.get(0).getValue());
+        int spinnerPosition = adapter.getPosition(new Color(String.valueOf(settings.get(0).getValue()),"tst"));
+        System.out.println(String.valueOf(settings.get(0).getValue()).equals("LightSalmon"));
+        System.out.println(spinnerPosition);
+//        System.out.println(Objects.equals(settings.get(0).getValue(), "LightSalmon"));
         spinner.setSelection(spinnerPosition);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = parent.getItemAtPosition(position).toString();
+                Color selectedItem = (Color) parent.getItemAtPosition(position);
                 for (Color c: colors) {
-                    if (c.getName().equals(selectedItem)){
+                    if (c.equals(selectedItem)){
+                        System.out.println(selectedItem);
                         db2.UpdateSetting(new Setting("bg",c.getName()));
                         cl.setBackgroundColor(android.graphics.Color.parseColor(c.getCode()));
                     }

@@ -1,6 +1,9 @@
 package com.example.mini_project_02.models;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.Objects;
 
 public class Color {
     String name;
@@ -31,5 +34,14 @@ public class Color {
     @Override
     public String toString() {
         return String.format("name : %s   -    code : %s",getName(),getCode());
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj instanceof Color){
+            return Objects.equals(getName(), ((Color) obj).getName());
+        }
+
+        return false;
     }
 }
