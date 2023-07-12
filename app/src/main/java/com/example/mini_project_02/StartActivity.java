@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -48,6 +49,7 @@ public class StartActivity extends AppCompatActivity {
     FavoriteQuotesDbOpenHelper db;
     TextView tvStartActId;
     ConstraintLayout cl;
+    int disabledItemIndex = 0;
 
 
 
@@ -76,9 +78,21 @@ public class StartActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     cl.setBackgroundColor(Color.parseColor(colorsCode[which]));
+
+                    disabledItemIndex=which;
                 }
             });
-            builder.show();
+
+            AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    ListView listView = ((AlertDialog) dialog).getListView();
+                        listView.getChildAt(disabledItemIndex).setEnabled(false);
+                }
+            });
+
+            dialog.show();
         });
 
 
@@ -210,8 +224,14 @@ public class StartActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        for (String colorNmae: getResources().getStringArray(R.array.colors_names)) {
-            menu.add(0, v.getId(), 0, colorNmae);
+        String[] colorsName = getResources().getStringArray(R.array.colors_names);
+
+        for (int i = 0; i < colorsName.length; i++) {
+            if (i == disabledItemIndex)
+                menu.add(0, v.getId(), 0, colorsName[i]).setEnabled(false);
+            else
+                menu.add(0, v.getId(), 0, colorsName[i]);
+
         };
 
     }
@@ -223,9 +243,12 @@ public class StartActivity extends AppCompatActivity {
         for (int i = 0; i < colorsName.length; i++) {
             if (Objects.equals(item.getTitle(),colorsName[i])) {
                 cl.setBackgroundColor(Color.parseColor(colorsCode[i]));
-                System.out.println(colorsCode[i]);
+
+                disabledItemIndex = i;
             }
         }
+
+        item.setEnabled(false);
 
         return true;
     }
