@@ -1,11 +1,16 @@
 package com.example.mini_project_02;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -24,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class StartActivity extends AppCompatActivity {
     private final static int INVALIDE_ID = -1;
@@ -33,8 +39,10 @@ public class StartActivity extends AppCompatActivity {
     ToggleButton tbStartActPinUnpin;
     SharedPreferences sharedPreferences;
     ImageView ivStartActIsFavorite;
+    ImageView ivTheme;
     FavoriteQuotesDbOpenHelper db;
     TextView tvStartActId;
+    ConstraintLayout cl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +54,12 @@ public class StartActivity extends AppCompatActivity {
         btnStartActShowAllFavQuotes = findViewById(R.id.btnStartActShowAllFavQuotes);
         tbStartActPinUnpin = findViewById(R.id.tbStartActPinUnpin);
         ivStartActIsFavorite = findViewById(R.id.ivStartActIsFavorite);
+        ivTheme = findViewById(R.id.ivTheme);
         tvStartActId = findViewById(R.id.tvStartActId);
+        cl = findViewById(R.id.cl);
+
+        registerForContextMenu(ivTheme);
+
 
         //region Persistence Objects
 
@@ -171,5 +184,29 @@ public class StartActivity extends AppCompatActivity {
                 });
 
         queue.add(jsonObjectRequest);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        for (String colorNmae: getResources().getStringArray(R.array.colors_names)) {
+            menu.add(0, v.getId(), 0, colorNmae);
+        };
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        String[] colorsName = getResources().getStringArray(R.array.colors_names);
+        String[] colorsCode = getResources().getStringArray(R.array.colors_codes);
+
+        for (int i = 0; i < colorsName.length; i++) {
+            if (Objects.equals(item.getTitle(),colorsName[i])) {
+                cl.setBackgroundColor(Color.parseColor(colorsCode[i]));
+                System.out.println(colorsCode[i]);
+            }
+        }
+
+        return true;
     }
 }
