@@ -1,8 +1,13 @@
 package com.example.mini_project_02;
 
+import static android.app.PendingIntent.getActivity;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -44,10 +49,15 @@ public class StartActivity extends AppCompatActivity {
     TextView tvStartActId;
     ConstraintLayout cl;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
+        String[] colorsName = getResources().getStringArray(R.array.colors_names);
+        String[] colorsCode = getResources().getStringArray(R.array.colors_codes);
 
         tvStartActQuote = findViewById(R.id.tvStartActQuote);
         tvStartActAuthor = findViewById(R.id.tvStartActAuthor);
@@ -59,6 +69,17 @@ public class StartActivity extends AppCompatActivity {
         cl = findViewById(R.id.cl);
 
         registerForContextMenu(ivTheme);
+
+        ivTheme.setOnClickListener(v -> {
+            androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setItems(colorsName, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    cl.setBackgroundColor(Color.parseColor(colorsCode[which]));
+                }
+            });
+            builder.show();
+        });
 
 
         //region Persistence Objects
@@ -189,17 +210,16 @@ public class StartActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-
         for (String colorNmae: getResources().getStringArray(R.array.colors_names)) {
             menu.add(0, v.getId(), 0, colorNmae);
         };
+
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         String[] colorsName = getResources().getStringArray(R.array.colors_names);
         String[] colorsCode = getResources().getStringArray(R.array.colors_codes);
-
         for (int i = 0; i < colorsName.length; i++) {
             if (Objects.equals(item.getTitle(),colorsName[i])) {
                 cl.setBackgroundColor(Color.parseColor(colorsCode[i]));
@@ -209,4 +229,6 @@ public class StartActivity extends AppCompatActivity {
 
         return true;
     }
+
+
 }
