@@ -1,4 +1,4 @@
-# Random Quoates Java App
+# Random Quotes Java App
 
 Quotify is a Java app that displays random quotes each time it's launched. Users can pin or like quotes, view their favorite quotes, and change the app's theme.
 
